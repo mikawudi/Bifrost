@@ -46,6 +46,10 @@ func (This *History) threadStart(i int,wg *sync.WaitGroup)  {
 	}()
 	db.Exec("SET NAMES UTF8",[]driver.Value{})
 	This.initMetaInfo(db)
+	if This.TableInfo.TABLE_ROWS == 0 {
+		log.Println("history select table rows 0",This.DbName,This.SchemaName,This.TableName," Current Select Table:",This.CurrentTableName)
+		return
+	}
 	if len(This.Fields) == 0{
 		This.ThreadPool[i].Error = fmt.Errorf("Fields empty,%s %s %s "+This.DbName,This.SchemaName,This.TableName," Current Select Table:",This.CurrentTableName)
 		log.Println("history select Fields empty",This.DbName,This.SchemaName,This.TableName," Current Select Table:",This.CurrentTableName)
@@ -58,7 +62,22 @@ func (This *History) threadStart(i int,wg *sync.WaitGroup)  {
 	n := len(This.Fields)
 	var start uint64
 	var sql string
+	var rowCount int
+	// 每次循环之前先累加一次，再清空统计,待协程退出的时候 ，再累加一次，这样可以避免中途退出的情况
+	// 这里为什么用 闭合函数,假如放在 history 对象里，每次通过 This.TableNameArr[This.TableCountSuccess] 去获取 Table ,可能存在问题的，因为 defer 存在一定概率是在下一个表查询的时候执行呢
+	StatusTable := This.TableNameArr[This.TableCountSuccess]
+	var AddSelectDataCount = func() {
+		StatusTable.Lock()
+		StatusTable.SelectCount += uint64(rowCount)
+		StatusTable.Unlock()
+		This.Lock()
+		This.SelectRowsCount += uint64(rowCount)
+		This.Unlock()
+		rowCount = 0
+	}
+	defer AddSelectDataCount()
 	for {
+		AddSelectDataCount()
 		This.RLock()
 		if This.Status == HISTORY_STATUS_SELECT_STOPING {
 			This.RUnlock()
@@ -84,7 +103,7 @@ func (This *History) threadStart(i int,wg *sync.WaitGroup)  {
 			runtime.Goexit()
 			return
 		}
-		rowCount := 0
+
 		for {
 			This.RLock()
 			if This.Status == HISTORY_STATUS_KILLED {
@@ -217,9 +236,6 @@ func (This *History) GetNextSql() (sql string,start uint64){
 	defer This.Unlock()
 	var where string = ""
 	if This.Property.LimitOptimize == 0 || This.TablePriKeyMaxId  == 0 {
-		if This.NowStartI > This.TableInfo.TABLE_ROWS{
-			return
-		}
 		if This.Property.Where != "" {
 			where = " WHERE " + This.Property.Where
 		}

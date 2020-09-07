@@ -22,7 +22,7 @@
 
 ---
 
-#### **WIKI** : [http://wiki.xbifrost.com](http://wiki.xbifrost.com)
+#### **WIKI** : [https://wiki.xbifrost.com](https://wiki.xbifrost.com)
 
 ----
 
@@ -37,6 +37,8 @@
 
 * 同时支持 **增量** 及 **全量** 数据同步
 
+* 一个Binlog解析线程,多个目标库**并行同步**
+
 * 宕机后重启自动恢复配置,位点精确控制
 
 * 支持自定义插件开发，动态加载
@@ -44,8 +46,6 @@
 * 支持 Email 及 微信企业号等**监控报警**功能
 
 * 提供第三方监控平台访问接口(Http Basic验证)
-
-* 一个Binlog解析线程,多个目标库**并行同步**
 
 * 支持对 Null 的解析，但对 Null 的支持程度，取决于插件的支持，如果有 Null 数据，请查阅 相关插件文档
 
@@ -84,7 +84,7 @@ http://www.xbifrost.com/demo/goto.html
 
 * 5.7.18
 
-* 8.0.11 (用户密码验证需要采用 mysql_native_password 方式)
+* 8.0.21 (用户密码验证需要采用 mysql_native_password 方式)
 
 
 #### 安装
@@ -101,11 +101,11 @@ make install prefix=./target
 ##### 二进制文件安装
 `````sh
 
-wget https://github.com/brokercap/Bifrost/releases/download/v1.3.2-release/linux.zip
+wget https://github.com/brokercap/Bifrost/releases/download/v1.4.2-release/bifrost_v1.4.2-release_Linux-64bit-bin.tar.gz
 
-unzip linux.zip
+tar -zxvf bifrost_v1.4.1-release_Linux-64bit-bin.tar.gz
 
-cd linux && chmod a+x ./Bifrost*
+cd bifrost_v1.4.1-release_Linux-64bit-bin/bin && chmod a+x ./Bifrost*
 
 `````
 
@@ -157,7 +157,7 @@ vim Bifrost.ini
 [user]
 #登入用户名和密码
 #用户名在前，= 号后面是密码
-Bifrost=Bifrost123
+Bifrost=Bifrost
 BifrostMonitor=Bifrost123
 
 [groups]
@@ -211,11 +211,26 @@ meta_storage_path=127.0.0.1:6379
 #用于区别实例的名字
 cluster_name=bifrostTestClusterName
 
+#是否开启文件队列功能 true|false
+file_queue_usable=true
+
+#统计是否启文件队列的时间，单位毫秒
+file_queue_usable_count_time_diff=5000
+
+#file_queue_usable_count_time_diff 时间内内存队列被挤满的次数
+file_queue_usable_count=10
+
+#在没有数据的情况下,间隔多久提交一次插件,单位 秒
+plugin_commit_timeout=5
+
+#在同步出错的情况下,每2次重试之后 间隔多久再重试 ,单位 秒
+plugin_sync_retry_time=5
+
 `````
 
 ##### 生成https证书
 
-[参考证书生成](http://wiki.xbifrost.com/install/https_certificate/)
+[参考证书生成](https://wiki.xbifrost.com/install/https_certificate/)
 
 ### 感谢相关依赖包提供者
 
@@ -237,7 +252,7 @@ cluster_name=bifrostTestClusterName
 
 <table>
     <tr>
-        <td><img src="http://wiki.xbifrost.com/images/donate/weixin.jpeg" width="200"></td>
-        <td><img src="http://wiki.xbifrost.com/images/donate/alipay.jpeg" width="200"></td>
+        <td><img src="https://wiki.xbifrost.com/images/donate/weixin.jpeg" width="200"></td>
+        <td><img src="https://wiki.xbifrost.com/images/donate/alipay.jpeg" width="200"></td>
     </tr>
 </table>

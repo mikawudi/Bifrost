@@ -1,3 +1,35 @@
+v1.4.2-release   2020-09-05
+===========================
+1. 新复mysql binlog_checksum=none解析错误bug
+2. 修复全量任务查询数据显示数据错误bug
+3. plugin clickhouse 主键支持 标签使用
+4. 修复部分stmt,rows close 先后逻辑问题
+5. plugin kafka 新增 Timeout,RequiredAcks 配置参数
+6. 修复全量任务非between优化查询,总数对不上的bug
+
+v1.4.1-release   2020-08-31
+===========================
+1. 修复获取连接id，stmt未关闭的bug
+2. 修复 binlog_field_test_*  会匹配 出 binlog_field_test,all_binlog_field_test 的bug，自动转成  ^binlog_field_test_（.*） 不会匹配 binlog_field_test 出来
+3. 全量任务执行部分表之后不再执行的bug修复
+4. 全量任务列表显示正在执行的表的条数及已拉取的条数
+5. 位点恢复的过程中，第一个同步就是同步异常，恢复位点错误的bug
+6. 新增表同步的暂停和启动功能
+7. http 插件 推送方式变更为json raw 格式
+8. 配置界面新增表搜索功能
+9. linux 环境编译在没有go环境的情况下自动yum安装golang
+10. 首页版本判断逻辑更新
+11. 部门 api 接口变更
+
+v1.4.0-release   2020-08-24
+===========================
+1.支持模糊匹配横拆表的同步配置，比如 binlog_field_test_* 的方式匹配 binlog_field_test_1,binlog_field_test_2
+2.新增版本更新提示及最新动态显示
+3.新增plugin_commit_timeout,plugin_sync_retry_time 参数配置(对同步报警配置可能存在影响)
+4.编译目录新增bin文件侠
+5.配置文件路径新增以etc目录和Bifrost文件夹根目录 为相对路径功能
+6.没有配置同步的表，将不再做数据恢复
+
 v1.3.2-release   2020-08-07
 ===========================
 1.http插件 同步失败也不重试的bug修复
